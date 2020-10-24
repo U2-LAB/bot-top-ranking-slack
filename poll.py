@@ -14,19 +14,19 @@ class Poll:
     It represents the block of the message entity in the Slack.
     """
 
-    def __init__(self, number_of_songs: int):
+    def __init__(self, number_of_songs: int) -> None:
         self.storage = JsonPollStorage()
         self.is_started = False
         self.number_of_songs = number_of_songs
 
-    def start(self, message_id: str, songs: list):
+    def start(self, message_id: str, songs: list) -> None:
         """
         Method that start poll.
         """
         self.storage.create_storage(message_id, songs)
         self.is_started = True
 
-    def update_votes(self, user_id: str, selected_song: str):
+    def update_votes(self, user_id: str, selected_song: str) -> None:
         """
         Method that updates votes in the storage with new one.
         """

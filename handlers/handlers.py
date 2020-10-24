@@ -2,14 +2,13 @@ from chat.messages.chat_msg_functions import edit_msg_in_chat
 
 from handlers.commands.disco import parse_disco_args, start_disco
 from handlers.commands.lightsoff import start_lightsoff
+from handlers.commands.poptop import start_poptop
 
 import json
 
 from poll import Poll
 
 from slack import WebClient
-
-from handlers.interactivity.request_parse_functions import get_payload_as_dict
 
 
 def handle_commands(client: WebClient, poll: Poll, request_form: dict) -> None:
@@ -27,6 +26,8 @@ def handle_commands(client: WebClient, poll: Poll, request_form: dict) -> None:
             start_disco(client, poll, request_form)
     elif command == '/lightsoff':
         start_lightsoff(client, poll, request_form)
+    elif command == '/poptop':
+        start_poptop(client, poll, request_form)
 
 def handle_interactivity(client: WebClient, request, poll: Poll) -> None:
     """

@@ -23,6 +23,14 @@ class JsonPollStorage(AbstractPollStorage):
         """
         return self.data['songs']
 
+    def get_selected_song(self, song_id:int) -> dict:
+        """
+        Method to get selected song.
+        """
+        for song in self.data['songs']:
+            if song['value'] == song_id:
+                return song
+
     def create_storage(self, message_id: str, songs: list):
         """
         Method that will create data and the way to store it.
