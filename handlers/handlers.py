@@ -3,6 +3,7 @@ from chat.messages.chat_msg_functions import edit_msg_in_chat
 from handlers.commands.disco import parse_disco_args, start_disco
 from handlers.commands.lightsoff import start_lightsoff
 from handlers.commands.poptop import start_poptop
+from handlers.commands.top import start_top
 
 import json
 
@@ -28,6 +29,8 @@ def handle_commands(client: WebClient, poll: Poll, request_form: dict) -> None:
         start_lightsoff(client, poll, request_form)
     elif command == '/poptop':
         start_poptop(client, poll, request_form)
+    elif command == '/top':
+        start_top(client, poll, request_form)
 
 def handle_interactivity(client: WebClient, request, poll: Poll) -> None:
     """

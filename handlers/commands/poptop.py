@@ -6,7 +6,7 @@ from songs_functionality.songs_functions import make_valid_song_name, download_s
 from slack import WebClient
 
 
-def check_poptop_song(poll: Poll, request_form: dict) -> int:
+def check_poptop_argument(poll: Poll, request_form: dict) -> int:
     """
     Check the argument of /poptop command and return the value of song.
     """
@@ -29,7 +29,7 @@ def poptop_selected_song(client: WebClient, poll: Poll, request_form: dict) -> N
     message_id = poll.storage.get_message_id()
     channel_id = request_form.get('channel_id')
 
-    song_id = check_poptop_song(poll, request_form)
+    song_id = check_poptop_argument(poll, request_form)
     song = poll.storage.get_selected_song(song_id)
     song_title = make_valid_song_name(song)
     send_msg_to_chat(client, request_form, 'Your poptop song is downloading. Wait please')

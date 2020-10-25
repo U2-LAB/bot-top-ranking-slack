@@ -38,8 +38,7 @@ class JsonPollStorage(AbstractPollStorage):
         self.data = {
             'message_id': message_id,
             'is_started': False,
-            'songs': songs,
-            'voted_users': []
+            'songs': songs
         }     
     
     def update_message_id(self, message_id: str):
