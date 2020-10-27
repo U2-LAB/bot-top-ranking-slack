@@ -1,37 +1,7 @@
-# Contain functions that I do not know where to place
-
-import json
-import random
-import requests
 from os import system
-from bs4 import BeautifulSoup
-
-import json
 
 from storage.storage import AbstractPollStorage
 
-
-def get_all_songs(number_of_songs: int) -> list:
-    """
-    Download random songs from ZAYCEV.NET.
-    """
-    songs = []
-
-    response = requests.get('https://zaycev.net')
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    all_top_songs = soup.find_all(class_='musicset-track__download-link')
-
-    for index, song_a in enumerate(random.sample(all_top_songs, number_of_songs)):        
-        song = {}
-        song['value'] = index + 1
-        song['title'] = song_a.get('title').split(' ', 2)[-1]
-        song['link'] = 'https://zaycev.net' + song_a.get('href')
-        song['voted_users'] = []
-
-        songs.append(song)
-
-    return songs
 
 def download_song(title: str, link: str, path: str) -> None:
     system(f'wget -O {path}/{title}.mp3 "{link}"')
@@ -39,12 +9,27 @@ def download_song(title: str, link: str, path: str) -> None:
 def delete_songs(path: str) -> None:
     system(f'rm {path}/*.mp3')
 
-def make_valid_song_name(song: str) -> str:
+def make_valid_song_name(song: dict) -> str:
     """
     Parse the title of the song and make it valid to store.
-    """
-    song_title = ''
-    for symbol in song['title']:
-        if symbol not in (' ', '(', ')', '.', ','):
-            song_title += symbol
+    """ 
+    song_title = '-'.join([song['artist'], song['title']])
+    song_title = song_title.replace(' ', '-')
+
     return song_title
+
+def sort_songs(all_songs: list) -> list:
+    """
+    Sort all_songs all_songs.
+    Use bubble sort.
+    """
+    # Get duplicate of the data
+    # not to change the real order of the songs.
+    all_songs = all_songs[:] 
+
+    for i in range(len(all_songs)-1):
+        for j in range(len(all_songs)-i-1):
+            if len(all_songs[j]['voted_users']) < len(all_songs[j+1]['voted_users']):
+                all_songs[j], all_songs[j+1] = all_songs[j+1], all_songs[j]
+
+    return all_songs

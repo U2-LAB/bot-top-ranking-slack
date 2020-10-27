@@ -2,7 +2,7 @@ from chat.messages.chat_msg_functions import send_msg_to_user, send_msg_to_chat,
 from chat.users import is_admin
 from chat.files import upload_file
 from poll import Poll
-from songs_functionality.songs_functions import make_valid_song_name, download_song, delete_songs
+from songs_functionality.songs_functions import make_valid_song_name, download_song, delete_songs, sort_songs
 from slack import WebClient
 
 
@@ -28,18 +28,24 @@ def poptop_selected_song(client: WebClient, poll: Poll, request_form: dict) -> N
     """
     message_id = poll.storage.get_message_id()
     channel_id = request_form.get('channel_id')
-
     song_id = check_poptop_argument(poll, request_form)
-    song = poll.storage.get_selected_song(song_id)
-    song_title = make_valid_song_name(song)
-    send_msg_to_chat(client, request_form, 'Your poptop song is downloading. Wait please')
-    download_song(song_title, song['link'], './media')
-    upload_file(client, request_form, './media/{}.mp3'.format(song_title))
+    
+    sorted_songs = sort_songs(poll.storage.get_all_songs())
+
+    song = sorted_songs[song_id-1]
+    
+    if poll.is_music_upload:
+        song_title = make_valid_song_name(song)
+        send_msg_to_chat(client, request_form, 'Your poptop song is downloading. Wait please')
+        download_song(song_title, song['link'], './media')
+        upload_file(client, request_form, './media/{}.mp3'.format(song_title))
+        delete_songs('./media/songs')
+    else:
+        send_msg_to_chat(client, request_form, f'Poptop song {song_id} is {song["artist"]} - {song["title"]}')
+    
     song['voted_users'] = []
-    
+    poll.storage.save()
     edit_msg_in_chat(client, channel_id, message_id, "POPTOP SONG", poll.update_block())
-    
-    delete_songs('./media')
 
 
 def start_poptop(client: WebClient, poll: Poll, request_form: dict) -> None:

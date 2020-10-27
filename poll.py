@@ -15,9 +15,33 @@ class Poll:
     """
 
     def __init__(self, number_of_songs: int) -> None:
-        self.storage = JsonPollStorage()
-        self.is_started = False
+        self.storage = JsonPollStorage('storage/json/history/')
         self.number_of_songs = number_of_songs
+
+    @property
+    def is_started(self):
+        return self.storage.data['is_started']
+
+    @is_started.setter
+    def is_started(self, value):
+        if isinstance(value, bool):
+            self.storage.data['is_started'] = value
+
+    @property
+    def is_music_upload(self):
+        return self.storage.data['is_music_upload']
+    
+    @is_music_upload.setter
+    def is_music_upload(self, value):
+        if isinstance(value, bool):
+            self.storage.data['is_music_upload'] = value
+        
+    def reset_settings(self) -> None:
+        """
+        Function, that will set default values to variables.
+        """
+        self.is_music_upload = False
+        self.is_started = False
 
     def start(self, message_id: str, songs: list) -> None:
         """
@@ -39,7 +63,7 @@ class Poll:
                     song['voted_users'].append(user_id)
                 else:
                     song['voted_users'].pop(song['voted_users'].index(user_id))
-
+   
     def update_block(self, user_id=None) -> list:
         """
         Method that updates block of songs in the current poll.
@@ -53,7 +77,7 @@ class Poll:
                 "type": "section",
                 "text": {
                     "type": "plain_text",
-                    "text": "{}) {} ----- {} votes".format(index, song['title'], len(song['voted_users']))
+                    "text": f"{index}) {song['artist']} - {song['title']} ----- {len(song['voted_users'])} votes"
                 },
                 'accessory': {
                     'type': 'button',

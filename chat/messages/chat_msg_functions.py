@@ -22,6 +22,15 @@ def send_msg_to_chat(client: WebClient, request_form: dict, msg: str, blocks=Non
             blocks=blocks
         )
 
+def delete_msg_in_chat(client: WebClient, channel_id: str, msg_id: str) -> None:
+    """
+    Function, that delete selected message in chat.
+    """
+    client.chat_delete(
+        channel=channel_id,
+        ts=msg_id
+    ) 
+
 def edit_msg_in_chat(client: WebClient, channel_id: str, msg_id: str, new_msg: str, blocks=None) -> dict:
     """
     Function, that edit selected message in the channel.

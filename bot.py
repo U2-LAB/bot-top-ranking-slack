@@ -58,6 +58,5 @@ slack_events_adapter = SlackEventAdapter(
     SLACK_BOT_SIGNIN_TOKEN, "/slack/events", app
 ) 
 
-
 if __name__ == "__main__":
   app.run(port=3000)

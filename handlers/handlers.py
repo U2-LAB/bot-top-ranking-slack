@@ -2,7 +2,9 @@ from chat.messages.chat_msg_functions import edit_msg_in_chat
 
 from handlers.commands.disco import parse_disco_args, start_disco
 from handlers.commands.lightsoff import start_lightsoff
+from handlers.commands.poll_status import start_poll_status
 from handlers.commands.poptop import start_poptop
+from handlers.commands.settings import start_settings
 from handlers.commands.top import start_top
 
 import json
@@ -20,17 +22,17 @@ def handle_commands(client: WebClient, poll: Poll, request_form: dict) -> None:
     command = request_form.get('command')
 
     if command == '/disco':
-        if command_args:=request_form.get('text'):
-            poll.number_of_songs = parse_disco_args(poll.number_of_songs, command_args)
-            start_disco(client, poll, request_form)
-        else:
-            start_disco(client, poll, request_form)
+        start_disco(client, poll, request_form)
     elif command == '/lightsoff':
         start_lightsoff(client, poll, request_form)
     elif command == '/poptop':
         start_poptop(client, poll, request_form)
     elif command == '/top':
         start_top(client, poll, request_form)
+    elif command == '/poll_status':
+        start_poll_status(client, poll, request_form)
+    elif command == '/settings':
+        start_settings(client, poll, request_form)
 
 def handle_interactivity(client: WebClient, request, poll: Poll) -> None:
     """
@@ -49,4 +51,5 @@ def handle_interactivity(client: WebClient, request, poll: Poll) -> None:
         channel_id = payload['container']['channel_id']
         message_id = payload['container']['message_ts']
 
+        poll.storage.save()
         edit_msg_in_chat(client, channel_id, message_id, 'MUSIC POLL', updated_poll_blocks)
