@@ -15,7 +15,6 @@ def make_valid_song_name(song: dict) -> str:
     """ 
     song_title = '-'.join([song['artist'], song['title']])
     song_title = song_title.replace(' ', '-')
-
     return song_title
 
 def sort_songs(all_songs: list) -> list:

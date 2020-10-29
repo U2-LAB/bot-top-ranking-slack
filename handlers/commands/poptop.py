@@ -26,13 +26,14 @@ def poptop_selected_song(client: WebClient, poll: Poll, request_form: dict) -> N
     """
     Get selected song, upload it and reset votes.
     """
-    message_id = poll.storage.get_message_id()
     channel_id = request_form.get('channel_id')
     song_id = check_poptop_argument(poll, request_form)
     
     sorted_songs = sort_songs(poll.storage.get_all_songs())
 
     song = sorted_songs[song_id-1]
+
+    message = poll.storage.find_message_from_song(song)
     
     if poll.is_music_upload:
         song_title = make_valid_song_name(song)
@@ -44,9 +45,9 @@ def poptop_selected_song(client: WebClient, poll: Poll, request_form: dict) -> N
         send_msg_to_chat(client, request_form, f'Poptop song {song_id} is {song["artist"]} - {song["title"]}')
     
     song['voted_users'] = []
-    poll.storage.save()
-    edit_msg_in_chat(client, channel_id, message_id, "POPTOP SONG", poll.update_block())
-
+    
+    edit_msg_in_chat(client, channel_id, message.get('id'), "POPTOP SONG", poll.create_poll_blocks(message.get('songs')))
+    poll.save()
 
 def start_poptop(client: WebClient, poll: Poll, request_form: dict) -> None:
     """

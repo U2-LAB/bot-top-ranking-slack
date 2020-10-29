@@ -15,10 +15,11 @@ def start_lightsoff(client: WebClient, poll: Poll, request_form: dict):
         if poll.is_started:
             send_msg_to_chat(client, request_form, 'The poll is finished. The winner is ...')
             winner = poll.find_the_winner_song()
+            
             if poll.is_music_upload:
                 song_title = make_valid_song_name(winner)
-                download_song(song_title, winner['link'], './media/songs')
-                upload_file(client, request_form, f'./media/songs/{song_title}.mp3')
+                download_song(song_title, winner['link'], './media')
+                upload_file(client, request_form, './media/{}.mp3'.format(song_title))
                 delete_songs('./media/songs')
             else:
                 send_msg_to_chat(
@@ -27,13 +28,14 @@ def start_lightsoff(client: WebClient, poll: Poll, request_form: dict):
                     f"{winner['artist']} - {winner['title']} with {len(winner['voted_users'])} votes !!!"
                 )
                 
-            poll.reset_settings()
+            poll.is_music_upload = False
+            poll.is_started = False
+            poll.save()
             
-            poll.storage.save()
             # Delete message from chat
-            message_id = poll.storage.get_message_id()
             channel_id = request_form.get('channel_id')
-            delete_msg_in_chat(client, channel_id, message_id)
+            for message_id in poll.storage.get_all_messages_id():
+                delete_msg_in_chat(client, channel_id, message_id)
         else:
             send_msg_to_user(client, request_form, 'No polls started yet. Use /disco command to run poll.')
     else:

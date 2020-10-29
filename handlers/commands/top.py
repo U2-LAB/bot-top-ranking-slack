@@ -38,7 +38,7 @@ def start_top(client: WebClient, poll: Poll, request_form: dict):
     """
     if poll.is_started:
         num_of_songs = check_top_arguments(poll, request_form)
-        current_songs = poll.storage.data['songs']
+        current_songs = poll.storage.get_all_songs()
         sorted_songs = sort_songs(current_songs)
         top_list_songs = sorted_songs[:num_of_songs]
         msg = create_final_top_msg(top_list_songs)

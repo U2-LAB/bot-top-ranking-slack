@@ -28,10 +28,6 @@ class AbstractPollStorage:
     @abstractmethod
     def save(self):
         pass
-    
-    @abstractmethod
-    def delete(self):
-        pass
 
     @abstractmethod
     def parse_csv_with_songs(self, file_name:str):

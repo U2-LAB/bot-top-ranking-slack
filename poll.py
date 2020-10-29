@@ -1,12 +1,14 @@
 from storage.json.storage import JsonPollStorage
 
+
 POLL_BLOCK_BLUEPRINT = [{
     "type": "section",
     "text": {
         "type": "plain_text",
-        "text": "Please, vote for the next song to play 🎶"
-    }
+        "text": "##########"
+    } 
 }]
+
 
 class Poll:
     """
@@ -17,62 +19,59 @@ class Poll:
     def __init__(self, number_of_songs: int) -> None:
         self.storage = JsonPollStorage('storage/json/history/')
         self.number_of_songs = number_of_songs
-
-    @property
-    def is_started(self):
-        return self.storage.data['is_started']
-
-    @is_started.setter
-    def is_started(self, value):
-        if isinstance(value, bool):
-            self.storage.data['is_started'] = value
-
-    @property
-    def is_music_upload(self):
-        return self.storage.data['is_music_upload']
-    
-    @is_music_upload.setter
-    def is_music_upload(self, value):
-        if isinstance(value, bool):
-            self.storage.data['is_music_upload'] = value
-        
-    def reset_settings(self) -> None:
-        """
-        Function, that will set default values to variables.
-        """
-        self.is_music_upload = False
         self.is_started = False
+        self.is_music_upload = False
 
-    def start(self, message_id: str, songs: list) -> None:
-        """
-        Method that start poll.
-        """
-        self.storage.create_storage(message_id, songs)
-        self.is_started = True
-
-    def update_votes(self, user_id: str, selected_song: str) -> None:
+    def update_votes(self, user_id: str, selected_song_id: str) -> None:
         """
         Method that updates votes in the storage with new one.
         """
         songs = self.storage.get_all_songs()
-        message_id = self.storage.get_message_id()
 
         for song in songs:
-            if song['value'] == int(selected_song):
+            if song['value'] == int(selected_song_id):
                 if user_id not in song['voted_users']:
                     song['voted_users'].append(user_id)
                 else:
                     song['voted_users'].pop(song['voted_users'].index(user_id))
    
-    def update_block(self, user_id=None) -> list:
+    def divide_all_songs_into_chunks(self, songs_in_list: list, songs_in_chunk=30) -> list:
         """
-        Method that updates block of songs in the current poll.
+        As it is allowed to use <= 50 units in slack messages,
+        So here is the function that check to seperate messages.
         """
-        all_songs = self.storage.get_all_songs()
+        latest_chunk_of_songs = songs_in_list[-1]
+        if len(latest_chunk_of_songs) > songs_in_chunk:
+            updated_chunk = latest_chunk_of_songs[:songs_in_chunk]
+            new_chunk = latest_chunk_of_songs[songs_in_chunk:]
+            songs_in_list[-1] = updated_chunk
+            songs_in_list.append(new_chunk)
+            return self.divide_all_songs_into_chunks(songs_in_list)
+        else:
+            return songs_in_list
 
+    def add_songs_chunks_to_messages(self, chunks: list) -> None:
+        """
+        Update storage.data dict with messages.
+        """
+        messages = []
+        for chunk in chunks:
+            message = {
+                'songs': chunk
+            }
+            messages.append(message)
+
+        self.storage.create_storage(messages)
+
+    def create_poll_blocks(self, songs_chunk: list) -> list:
+        """
+        Method that creates block of songs in the current poll.
+        """
         poll_block = POLL_BLOCK_BLUEPRINT[:]
+        
+        start_index = songs_chunk[0].get('value')
 
-        for index, song in enumerate(all_songs, start=1):
+        for index, song in enumerate(songs_chunk, start=start_index):
             new_section = {
                 "type": "section",
                 "text": {
@@ -83,7 +82,7 @@ class Poll:
                     'type': 'button',
                     'text': {
                         'type': 'plain_text',
-                        'text': 'Vote'
+                        'text': 'Vote/Unvote'
                     },
                     'value': str(index)
                 }
@@ -91,7 +90,7 @@ class Poll:
             poll_block.append(new_section)
 
         return poll_block
-
+        
     def find_the_winner_song(self) -> dict:
         """
         Method that parse songs in the storage and find song with max votes.
@@ -106,3 +105,9 @@ class Poll:
                 winner = song
 
         return winner
+
+    def save(self):
+        """
+        Save poll data to storage.
+        """
+        self.storage.save(self.is_started, self.is_music_upload)

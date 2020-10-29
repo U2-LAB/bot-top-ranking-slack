@@ -41,7 +41,7 @@ def start_settings(client: WebClient, poll: Poll, request_form: dict) -> None:
                 else:
                     poll.is_music_upload = False
                     send_msg_to_user(client, request_form, 'Uploading music: OFF')
-                poll.storage.save()
+                poll.save()
             else:
                 send_msg_to_user(
                     client, 

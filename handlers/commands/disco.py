@@ -9,7 +9,6 @@ from poll import Poll
 from slack import WebClient
 
 
-
 def parse_disco_args(command_arguments: str) -> int:
     """
     Check the argument of /disco command for csv file with songs and return the data.
@@ -21,18 +20,6 @@ def parse_disco_args(command_arguments: str) -> int:
             return arg
     return None
 
-def check_for_not_finished_poll(dir_path: str, file_format: str):
-    """
-    Function that check if the user has not finished polls and if True, return the first unfinished.
-    """
-    list_of_files = glob.glob(dir_path+'*.'+file_format)
-    
-    for poll_file in list_of_files:
-        with open(poll_file) as f:
-            data = json.load(f)
-            if data['is_started']:
-                return data
-
 def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
     Main function that is invoked when we run /disco command.
@@ -43,10 +30,10 @@ def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
             send_msg_to_user(client, request_form, 'Previous poll is not finished. Type /lightsoff to finish it.')
         else:
             # Track unfinished polls 
-            unfinished_poll = check_for_not_finished_poll('storage/json/history/', 'json')
+            unfinished_poll = poll.storage.check_for_unfinished_poll()
 
             if unfinished_poll:
-                send_msg_to_user(client, request_form, 'You have unfinished poll. Type /resume to resume your poll or /resume_delete to avoid this poll.')
+                send_msg_to_user(client, request_form, 'You have unfinished poll. Type /resume to resume your poll or /drop to drop this poll.')
                 return 
 
             csv_file_url = parse_disco_args(request_form.get('text'))
@@ -63,10 +50,26 @@ def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
                     upload_file_to_user(client, request_form, 'media/csv/template.csv')
                 else:
                     poll.number_of_songs = len(songs)
-                    poll.start(None, songs)
-                    blocks = poll.update_block()
-                    poll_response = send_msg_to_chat(client, request_form, 'MUSIC POLL', blocks=blocks)
-                    poll.storage.update_message_id(poll_response['ts'])
-                    poll.storage.save()
+                    poll.is_started = True
+                
+                    messages = []
+
+                    if len(songs) > 30:
+                        chunks = poll.divide_all_songs_into_chunks([songs])
+                    else:
+                        chunks = [songs]        
+
+                    send_msg_to_chat(client, request_form, "Please, vote for the next song to play 🎶")
+
+                    for songs_chunk in chunks:
+                        message_blocks = poll.create_poll_blocks(songs_chunk)
+                        response = send_msg_to_chat(client, request_form, '', blocks=message_blocks)
+                        messages.append({
+                            'id': response.get('ts'),
+                            'songs': songs_chunk
+                        })
+
+                    poll.storage.create_storage(messages)
+                    poll.save()       
     else:
         send_msg_to_user(client, request_form, 'You have no permission to invoke this command.')
