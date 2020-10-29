@@ -6,9 +6,9 @@ from slack import WebClient
 
 
 
-def start_drop(client: WebClient, poll: Poll, request_form: dict):
+def start_drop(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
-    Main function that is invoked when we run /drop command.
+    Function, that is invoked when we run /drop command.
     /drop is valid only for channel admin.
     """
 

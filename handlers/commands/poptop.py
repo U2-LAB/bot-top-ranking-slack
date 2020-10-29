@@ -27,23 +27,21 @@ def poptop_selected_song(client: WebClient, poll: Poll, request_form: dict) -> N
     Get selected song, upload it and reset votes.
     """
     channel_id = request_form.get('channel_id')
-    song_id = check_poptop_argument(poll, request_form)
-    
+    selected_song_id = check_poptop_argument(poll, request_form)
     sorted_songs = sort_songs(poll.storage.get_all_songs())
-
-    song = sorted_songs[song_id-1]
-
-    message = poll.storage.find_message_from_song(song)
+    song = sorted_songs[selected_song_id-1]
+    message = poll.storage.get_message_from_song(song)
     
     if poll.is_music_upload:
         song_title = make_valid_song_name(song)
         send_msg_to_chat(client, request_form, 'Your poptop song is downloading. Wait please')
-        download_song(song_title, song['link'], './media')
-        upload_file(client, request_form, './media/{}.mp3'.format(song_title))
+        download_song(song_title, song['link'], './media/songs')
+        upload_file(client, request_form, './media/songs/{}.mp3'.format(song_title))
         delete_songs('./media/songs')
     else:
-        send_msg_to_chat(client, request_form, f'Poptop song {song_id} is {song["artist"]} - {song["title"]}')
+        send_msg_to_chat(client, request_form, f'Poptop song {selected_song_id} is {song["artist"]} - {song["title"]}')
     
+    # Reste selected song votes
     song['voted_users'] = []
     
     edit_msg_in_chat(client, channel_id, message.get('id'), "POPTOP SONG", poll.create_poll_blocks(message.get('songs')))
@@ -51,7 +49,7 @@ def poptop_selected_song(client: WebClient, poll: Poll, request_form: dict) -> N
 
 def start_poptop(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
-    Function that is invoked when we run /poptop command.
+    Function, that is invoked when we run /poptop command.
     """
     if is_admin(client, request_form):
         if poll.is_started:

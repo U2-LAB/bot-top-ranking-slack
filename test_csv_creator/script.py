@@ -15,6 +15,10 @@ def get_all_songs() -> list:
     all_top_songs = soup.find_all(class_='musicset-track')
 
     for song_bs in all_top_songs:
+        # If track is banned on the site, it will be shown in the class of the tag
+        if 'track-is-banned' in song_bs.get('class'):  
+            continue
+        
         song = []
         song.append(song_bs.find(class_='musicset-track__track-name').find('a').text)
         song.append(song_bs.find(class_='musicset-track__artist').find('a').text)
@@ -34,7 +38,6 @@ def form_csv(songs: list, delimiter=';') -> None:
         writer.writerow(['Title', 'Artist', 'Link'])
         for song in songs:
             writer.writerow(song) 
-
 
 
 if __name__ == "__main__":

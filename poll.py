@@ -5,7 +5,7 @@ POLL_BLOCK_BLUEPRINT = [{
     "type": "section",
     "text": {
         "type": "plain_text",
-        "text": "##########"
+        "text": "#"
     } 
 }]
 
@@ -24,7 +24,7 @@ class Poll:
 
     def update_votes(self, user_id: str, selected_song_id: str) -> None:
         """
-        Method that updates votes in the storage with new one.
+        Method, that updates votes in the storage with new one.
         """
         songs = self.storage.get_all_songs()
 
@@ -65,7 +65,7 @@ class Poll:
 
     def create_poll_blocks(self, songs_chunk: list) -> list:
         """
-        Method that creates block of songs in the current poll.
+        Method, that creates block of songs in the current poll.
         """
         poll_block = POLL_BLOCK_BLUEPRINT[:]
         
@@ -93,7 +93,7 @@ class Poll:
         
     def find_the_winner_song(self) -> dict:
         """
-        Method that parse songs in the storage and find song with max votes.
+        Method, that parse songs in the storage and find song with max votes.
         If two songs have same number of votes, it will return the first one. 
         """
         songs = self.storage.get_all_songs()
@@ -106,7 +106,7 @@ class Poll:
 
         return winner
 
-    def save(self):
+    def save(self) -> None:
         """
         Save poll data to storage.
         """

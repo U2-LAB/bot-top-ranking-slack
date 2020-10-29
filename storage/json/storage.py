@@ -24,15 +24,6 @@ class JsonPollStorage(AbstractPollStorage):
         self.data = {}
         self.file_path = dir_path + self._get_valid_json_file_name()
 
-    def get_all_songs(self) -> list:
-        """
-        Method to get list of songs.
-        """
-        all_songs = []
-        for message in self.data.get('messages'):
-            all_songs.extend(message.get('songs')) 
-        return all_songs
-
     def create_storage(self, messages: list) -> None:
         """
         Method that will create data and the way to store it.
@@ -42,6 +33,15 @@ class JsonPollStorage(AbstractPollStorage):
             'is_music_upload': False,
             'messages': messages,
         }
+
+    def get_all_songs(self) -> list:
+        """
+        Method to get list of songs.
+        """
+        all_songs = []
+        for message in self.data.get('messages'):
+            all_songs.extend(message.get('songs')) 
+        return all_songs
     
     def get_all_messages_id(self) -> list:
         """
@@ -49,7 +49,7 @@ class JsonPollStorage(AbstractPollStorage):
         """
         return [message.get('id') for message in self.data.get('messages')]
 
-    def find_message_from_song(self, song: dict) -> dict:
+    def get_message_from_song(self, song: dict) -> dict:
         """
         Get message with particular song.
         """
@@ -57,7 +57,7 @@ class JsonPollStorage(AbstractPollStorage):
             if song in message.get('songs'):
                 return message
 
-    def get_songs_chunk_with_selected_song(self, song_id: str):
+    def get_songs_chunk_with_selected_song(self, song_id: str) -> list:
         """
         Get song object form song id.
         """
@@ -69,7 +69,16 @@ class JsonPollStorage(AbstractPollStorage):
                 prev_msg = next_msg
         return self.data['messages'][-1]['songs']
 
-    def parse_csv_with_songs(self, file_url: str, next_line='\r\n', delimetr=';') -> list:
+    def save(self, is_started: bool, is_music_upload: bool) -> None:
+
+        self.data['is_started'] = is_started
+        self.data['is_music_upload'] = is_music_upload
+
+        with open(self.file_path, 'w') as f:
+            f.write(json.dumps(self.data))
+
+    # For CSV
+    def parse_csv_with_songs(self, file_url: str, next_line='\r\n', delimiter=';') -> list:
         """
         Function that will download csv file with songs.
         """
@@ -79,7 +88,7 @@ class JsonPollStorage(AbstractPollStorage):
         header, *rows = response.text.split(next_line)
 
         # Check the right format fo the csv file
-        header = header.split(delimetr)
+        header = header.split(delimiter)
         if not (header[0] == 'Title' and header[1] == 'Artist' and header[2] == 'Link'): 
             return [] 
 
@@ -89,7 +98,7 @@ class JsonPollStorage(AbstractPollStorage):
             if not row:
                 continue
             
-            row_as_list = row.split(delimetr)
+            row_as_list = row.split(delimiter)
             song = {
                 'value': index,
                 'title': row_as_list[0],
@@ -101,15 +110,8 @@ class JsonPollStorage(AbstractPollStorage):
 
         return parsed_csv_data
 
-    def save(self, is_started: bool, is_music_upload: bool):
-
-        self.data['is_started'] = is_started
-        self.data['is_music_upload'] = is_music_upload
-
-        with open(self.file_path, 'w') as f:
-            f.write(json.dumps(self.data))
-
-    def drop_all(self):
+    # For unfinished polls
+    def drop_all(self) -> None:
         """
         Drop all json files with is_started=True
         """

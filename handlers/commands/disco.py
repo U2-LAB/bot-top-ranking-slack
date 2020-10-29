@@ -22,7 +22,7 @@ def parse_disco_args(command_arguments: str) -> int:
 
 def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
-    Main function that is invoked when we run /disco command.
+    Function, that is invoked when we run /disco command.
     /disco is valid only for channel admin.
     """
     if is_admin(client, request_form):
@@ -36,6 +36,7 @@ def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
                 send_msg_to_user(client, request_form, 'You have unfinished poll. Type /resume to resume your poll or /drop to drop this poll.')
                 return 
 
+            # Preparing csv file with songs
             csv_file_url = parse_disco_args(request_form.get('text'))
             if not csv_file_url:
                 send_msg_to_user(client, request_form, 'Please enter valid file path')
@@ -49,11 +50,14 @@ def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
                     )
                     upload_file_to_user(client, request_form, 'media/csv/template.csv')
                 else:
+                    # If previous steps are good, do ...
                     poll.number_of_songs = len(songs)
                     poll.is_started = True
                 
+                    # As slack message allows having only < 50 songs in the message, so next code
+                    # seperate all the songs on 30 songs chunks and put each chunk in its message. 
                     messages = []
-
+                    
                     if len(songs) > 30:
                         chunks = poll.divide_all_songs_into_chunks([songs])
                     else:

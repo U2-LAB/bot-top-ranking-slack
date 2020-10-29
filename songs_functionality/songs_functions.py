@@ -4,9 +4,15 @@ from storage.storage import AbstractPollStorage
 
 
 def download_song(title: str, link: str, path: str) -> None:
+    """
+    Function, that downloads song from the web using wget command.
+    """
     system(f'wget -O {path}/{title}.mp3 "{link}"')
 
 def delete_songs(path: str) -> None:
+    """
+    Function, that deletes all teh songs from path dir.
+    """
     system(f'rm {path}/*.mp3')
 
 def make_valid_song_name(song: dict) -> str:
@@ -19,8 +25,7 @@ def make_valid_song_name(song: dict) -> str:
 
 def sort_songs(all_songs: list) -> list:
     """
-    Sort all_songs all_songs.
-    Use bubble sort.
+    Sort all_songs in desc order, using bubble sort.
     """
     # Get duplicate of the data
     # not to change the real order of the songs.

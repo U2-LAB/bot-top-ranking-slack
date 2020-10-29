@@ -6,15 +6,14 @@ from slack import WebClient
 
 
 
-def start_resume(client: WebClient, poll: Poll, request_form: dict):
+def start_resume(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
-    Main function that is invoked when we run /drop command.
+    Function, that is invoked when we run /drop command.
     /drop is valid only for channel admin.
     """
-
     if is_admin(client, request_form):
-        poll.storage.data = poll.storage.check_for_unfinished_poll()  
-        
+        poll.storage.data = poll.storage.check_for_unfinished_poll() # Get data from unfinished poll  
+
         send_msg_to_chat(client, request_form, "Please, vote for the next song to play 🎶")
 
         for message in poll.storage.data['messages']:

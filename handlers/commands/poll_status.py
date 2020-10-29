@@ -4,9 +4,9 @@ from poll import Poll
 from slack import WebClient
 
 
-def start_poll_status(client: WebClient, poll: Poll, request_form: dict):
+def start_poll_status(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
-    Main function that is invoked when we run /poll_status command.
+    Function, that is invoked when we run /poll_status command.
     """
     status_msg = 'Current poll status:\n'
 

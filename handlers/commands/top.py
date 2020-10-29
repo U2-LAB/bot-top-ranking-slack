@@ -14,16 +14,16 @@ def check_top_arguments(poll: Poll, request_form: dict) -> int:
     try:
         song_index = int(args)
     except ValueError:
-        return 2
+        return 5
 
     if 1 < song_index < poll.number_of_songs:
         return song_index
     else:
-        return 2 
+        return 5 
 
 def create_final_top_msg(top_songs: list) -> str:
     """
-    Function that create top command response message.
+    Function, that create top command response message.
     """
     msg = f"TOP {len(top_songs)} songs\n"
 
@@ -32,14 +32,13 @@ def create_final_top_msg(top_songs: list) -> str:
 
     return msg
 
-def start_top(client: WebClient, poll: Poll, request_form: dict):
+def start_top(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
     Function that is invoked when we run /top command.
     """
     if poll.is_started:
         num_of_songs = check_top_arguments(poll, request_form)
-        current_songs = poll.storage.get_all_songs()
-        sorted_songs = sort_songs(current_songs)
+        sorted_songs = sort_songs(poll.storage.get_all_songs())
         top_list_songs = sorted_songs[:num_of_songs]
         msg = create_final_top_msg(top_list_songs)
         send_msg_to_user(client, request_form, msg)

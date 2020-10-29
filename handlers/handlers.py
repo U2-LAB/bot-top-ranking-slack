@@ -18,7 +18,7 @@ from slack import WebClient
 
 def handle_commands(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
-    Function that will handle all the commands that is going to be sent to the bot.
+    Function, that will handle all the commands that is going to be sent to the bot.
     """
 
     command = request_form.get('command')
@@ -52,7 +52,7 @@ def handle_interactivity(client: WebClient, request, poll: Poll) -> None:
         user_id = payload['user']['id']
         selected_song_id = payload['actions'][0]['value']
         songs_chunk_with_selected_song = poll.storage.get_songs_chunk_with_selected_song(selected_song_id)
-    
+        
         poll.update_votes(user_id, selected_song_id)
 
         channel_id = payload['container']['channel_id']

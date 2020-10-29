@@ -7,12 +7,12 @@ from slack import WebClient
 
 def get_settings_option_and_option_argument(command_arguments: str) -> list:
     """
-    Function that parse command arguments and return:
+    Function, that parse command arguments and return:
         option - first argument
         arg - all the rest arguments.
     """
     if not command_arguments:
-        return 'common', []
+        return 'common', [] # 'common' is the option, when user does not use any option.
     else:
         option, *args = command_arguments.split()
         if not args:
@@ -22,7 +22,7 @@ def get_settings_option_and_option_argument(command_arguments: str) -> list:
 
 def start_settings(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
-    Main function that is invoked when we run /settings command.
+    Function, that is invoked when we run /settings command.
     """
     option, arg = get_settings_option_and_option_argument(request_form.get('text'))
 
