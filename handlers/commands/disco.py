@@ -2,6 +2,8 @@ from chat.messages.chat_msg_functions import send_msg_to_user, send_msg_to_chat
 from chat.users import is_admin
 from chat.files import upload_file_to_user
 
+from csv.parse_functions import parse_csv_with_songs
+
 import glob
 import json
 
@@ -41,18 +43,18 @@ def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
             if not csv_file_url:
                 send_msg_to_user(client, request_form, 'Please enter valid file path')
             else:
-                songs = poll.storage.parse_csv_with_songs(csv_file_url)
+                songs = parse_csv_with_songs(csv_file_url)
                 if not songs:
                     send_msg_to_user(
                         client, 
                         request_form,
                         "It seems like your CSV file structure is not valid. Use my template instead.",
                     )
-                    upload_file_to_user(client, request_form, 'media/csv/template.csv')
+                    upload_file_to_user(client, request_form, 'media/csv/template.csv') # Send user a csv template.
                 else:
                     # If previous steps are good, do ...
                     poll.number_of_songs = len(songs)
-                    poll.is_started = True
+                    poll.storage.data['is_started'] = True
                 
                     # As slack message allows having only < 50 songs in the message, so next code
                     # seperate all the songs on 30 songs chunks and put each chunk in its message. 
@@ -74,6 +76,6 @@ def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
                         })
 
                     poll.storage.create_storage(messages)
-                    poll.save()       
+                    poll.storage.save()       
     else:
         send_msg_to_user(client, request_form, 'You have no permission to invoke this command.')

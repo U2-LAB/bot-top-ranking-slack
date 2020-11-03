@@ -21,18 +21,12 @@ class JsonPollStorage(AbstractPollStorage):
         return f'poll-{date}-{time.split(".")[0]}.json'
 
     def __init__(self, dir_path: str):
-        self.data = {}
-        self.file_path = dir_path + self._get_valid_json_file_name()
-
-    def create_storage(self, messages: list) -> None:
-        """
-        Method that will create data and the way to store it.
-        """
         self.data = {
             'is_started': False,
             'is_music_upload': False,
-            'messages': messages,
+            'messages': [],
         }
+        self.file_path = dir_path + self._get_valid_json_file_name()
 
     def get_all_songs(self) -> list:
         """
@@ -57,7 +51,7 @@ class JsonPollStorage(AbstractPollStorage):
             if song in message.get('songs'):
                 return message
 
-    def get_songs_chunk_with_selected_song(self, song_id: str) -> list:
+    def get_songs_chunk_with_selected_song_id(self, song_id: str) -> list:
         """
         Get song object form song id.
         """
@@ -69,53 +63,16 @@ class JsonPollStorage(AbstractPollStorage):
                 prev_msg = next_msg
         return self.data['messages'][-1]['songs']
 
-    def save(self, is_started: bool, is_music_upload: bool) -> None:
-
-        self.data['is_started'] = is_started
-        self.data['is_music_upload'] = is_music_upload
-
+    def save(self) -> None:
         with open(self.file_path, 'w') as f:
             f.write(json.dumps(self.data))
 
-    # For CSV
-    def parse_csv_with_songs(self, file_url: str, next_line='\r\n', delimiter=';') -> list:
-        """
-        Function that will download csv file with songs.
-        """
-        response = requests.get(file_url)
-        response.encoding = response.apparent_encoding
-
-        header, *rows = response.text.split(next_line)
-
-        # Check the right format fo the csv file
-        header = header.split(delimiter)
-        if not (header[0] == 'Title' and header[1] == 'Artist' and header[2] == 'Link'): 
-            return [] 
-
-        parsed_csv_data = []
-
-        for index, row in enumerate(rows, start=1):
-            if not row:
-                continue
-            
-            row_as_list = row.split(delimiter)
-            song = {
-                'value': index,
-                'title': row_as_list[0],
-                'artist': row_as_list[1],
-                'link': row_as_list[2] if row_as_list[2] else None,
-                'voted_users': []
-            }
-            parsed_csv_data.append(song)
-
-        return parsed_csv_data
-
     # For unfinished polls
-    def drop_all(self) -> None:
+    def drop_all(self, path='storage/json/history/') -> None:
         """
         Drop all json files with is_started=True
         """
-        list_of_files = glob.glob('storage/json/history/*.json')
+        list_of_files = glob.glob(path+'*.json')
 
         for json_file in list_of_files:
             with open(json_file, 'r+') as f:
@@ -128,11 +85,11 @@ class JsonPollStorage(AbstractPollStorage):
 
                 f.write(json.dumps(poll_data))
 
-    def check_for_unfinished_poll(self) -> list:
+    def check_for_unfinished_poll(self, path='storage/json/history/') -> list:
         """
         Function that check if the user has not finished polls and if True, return the first unfinished.
         """
-        list_of_files = glob.glob('storage/json/history/*.json')
+        list_of_files = glob.glob(path+'*.json')
         
         for poll_file in list_of_files:
             with open(poll_file) as f:

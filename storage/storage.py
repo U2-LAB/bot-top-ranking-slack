@@ -29,7 +29,7 @@ class AbstractPollStorage:
         pass
 
     @abstractmethod
-    def get_songs_chunk_with_selected_song(self, song_id: str):
+    def get_songs_chunk_with_selected_song_id(self, song_id: str):
         pass
     
     # For CSV

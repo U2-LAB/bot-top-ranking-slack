@@ -45,7 +45,7 @@ def poptop_selected_song(client: WebClient, poll: Poll, request_form: dict) -> N
     song['voted_users'] = []
     
     edit_msg_in_chat(client, channel_id, message.get('id'), "POPTOP SONG", poll.create_poll_blocks(message.get('songs')))
-    poll.save()
+    poll.storage.save()
 
 def start_poptop(client: WebClient, poll: Poll, request_form: dict) -> None:
     """

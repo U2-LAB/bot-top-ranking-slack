@@ -29,9 +29,9 @@ def start_lightsoff(client: WebClient, poll: Poll, request_form: dict) -> None:
                 )
             
             # Reset poll status
-            poll.is_music_upload = False
-            poll.is_started = False
-            poll.save()
+            poll.storage.data['is_music_upload'] = False
+            poll.storage.data['is_started'] = False
+            poll.storage.save()
             
             # Delete message(s) from chat
             channel_id = request_form.get('channel_id')

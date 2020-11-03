@@ -51,7 +51,7 @@ def handle_interactivity(client: WebClient, request, poll: Poll) -> None:
         # If button was tracked
         user_id = payload['user']['id']
         selected_song_id = payload['actions'][0]['value']
-        songs_chunk_with_selected_song = poll.storage.get_songs_chunk_with_selected_song(selected_song_id)
+        songs_chunk_with_selected_song = poll.storage.get_songs_chunk_with_selected_song_id(selected_song_id)
         
         poll.update_votes(user_id, selected_song_id)
 
