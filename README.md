@@ -20,7 +20,7 @@ Little musical bot for slack that have following features:
 1. Create new bot-app using [SlackApi](https://api.slack.com/apps)
 2. Clone the repo
 ```bash
-git clone ttps://github.com/Stashchen/slack-music-bot.git slack-bot
+git clone https://github.com/Stashchen/bot-top-ranking-slack.git slack-bot
 cd slack-bot 
 ```
 3. Setup env
