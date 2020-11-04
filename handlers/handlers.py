@@ -59,4 +59,4 @@ def handle_interactivity(client: WebClient, request, poll: Poll) -> None:
         message_id = payload['container']['message_ts']
 
         edit_msg_in_chat(client, channel_id, message_id, '', poll.create_poll_blocks(songs_chunk_with_selected_song))
-        poll.save()
+        poll.storage.save()
