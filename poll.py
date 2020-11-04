@@ -16,9 +16,9 @@ class Poll:
     It represents the block of the message entity in the Slack.
     """
 
-    def __init__(self, number_of_songs: int) -> None:
+    def __init__(self) -> None:
         self.storage = JsonPollStorage('storage/json/history/')
-        self.number_of_songs = number_of_songs
+        self.number_of_songs = 0
 
     @property
     def is_started(self):
@@ -33,7 +33,7 @@ class Poll:
     
     @property
     def is_music_upload(self):
-        return self.storage.data.get('is_started')
+        return self.storage.data.get('is_music_upload')
 
     @is_music_upload.setter
     def is_music_upload(self, value):
@@ -66,22 +66,9 @@ class Poll:
             new_chunk = latest_chunk_of_songs[songs_in_chunk:]
             songs_in_list[-1] = updated_chunk
             songs_in_list.append(new_chunk)
-            return self.divide_all_songs_into_chunks(songs_in_list)
+            return self.divide_all_songs_into_chunks(songs_in_list, songs_in_chunk)
         else:
             return songs_in_list
-
-    def add_songs_chunks_to_messages(self, chunks: list) -> None:
-        """
-        Update storage.data dict with messages.
-        """
-        messages = []
-        for chunk in chunks:
-            message = {
-                'songs': chunk
-            }
-            messages.append(message)
-
-        self.storage.create_storage(messages)
 
     def create_poll_blocks(self, songs_chunk: list) -> list:
         """
