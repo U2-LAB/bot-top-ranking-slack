@@ -1,4 +1,4 @@
-from storage.json.storage import JsonPollStorage
+from storage.json.json_storage import JsonPollStorage
 
 
 POLL_BLOCK_BLUEPRINT = [{

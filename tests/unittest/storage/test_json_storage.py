@@ -1,6 +1,9 @@
-import unittest
+import json
 
-from storage.json.storage import JsonPollStorage
+import unittest
+from unittest.mock import patch, mock_open
+
+from storage.json.json_storage import JsonPollStorage
 
 
 class TestJsonPollStorage(unittest.TestCase):
@@ -119,8 +122,33 @@ class TestJsonPollStorage(unittest.TestCase):
         }]
         self.assertEqual(right_chunk, self.storage.get_songs_chunk_with_selected_song_id(song_id))
 
-    # def test_save()
+    def test_save(self):
+        with patch('builtins.open', mock_open()) as mocked_open:
+            self.storage.save()
+            mocked_open.assert_called_once_with(self.storage.file_path, 'w')
+            handler = mocked_open()
+            handler.write.assert_called_once_with(json.dumps(self.storage.data))
 
-    # def test_drop_all()
+    @patch('storage.json.json_storage.glob')
+    @patch('storage.json.json_storage.json')
+    def test_drop_all(self, mocked_json, mocked_glob):
+        mocked_glob.glob.return_value = ['test.json']
+        with patch('builtins.open', mock_open()) as mocked_open:
+            mocked_json.load.return_value = {'is_started': True}
+            self.storage.drop_all()
+            self.assertEqual(mocked_json.load.return_value, {'is_started': False})
+            mocked_open().write(json.dumps({'is_started': False}))
+    
+    @patch('storage.json.json_storage.glob')
+    @patch('storage.json.json_storage.json')
+    def test_check_for_unfinished_poll(self, mocked_json, mocked_glob):
+        mocked_glob.glob.return_value = ['test.json']
+        with patch('builtins.open', mock_open()) as mocked_open:
+            mocked_json.load.return_value = {'is_started': True}
+            result = self.storage.check_for_unfinished_poll()
+            self.assertEqual(result, {'is_started': True})
 
-    # def test_check_for_unfinished_poll
+            mocked_json.load.return_value = {'is_started': False}
+            result = self.storage.check_for_unfinished_poll()
+            self.assertEqual(result, None)
+        

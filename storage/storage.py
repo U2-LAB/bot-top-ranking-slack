@@ -32,11 +32,6 @@ class AbstractPollStorage:
     def get_songs_chunk_with_selected_song_id(self, song_id: str):
         pass
     
-    # For CSV
-    @abstractmethod
-    def parse_csv_with_songs(self, file_url: str, next_line: str, delimiter: str):
-        pass
-    
     # For unfinished polls
     @abstractmethod
     def drop_all(self):
