@@ -2,7 +2,7 @@ import requests
 import unittest
 from unittest.mock import patch
 
-import csv.parse_functions as csv_funcs
+import tools.parse_functions as csv_funcs
 
 
 good_response_text = "Title;Artist;Link\r\nTitle1;Artist1;Link1\r\nTitle2;Artist2;Link2\r\nTitle3;Artist3;Link3\r\n"
@@ -20,7 +20,7 @@ class TestParseFunctions(unittest.TestCase):
     """
     Testing csv parse_functions.
     """
-    @patch('csv.parse_functions.requests')
+    @patch('tools.parse_functions.requests')
     def test_parse_csv_with_songs(self, mocked_requests):  
         mocked_requests.get.return_value = CustomResponse(good_response_text)
         valid_data = [{

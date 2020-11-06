@@ -95,4 +95,5 @@ class JsonPollStorage(AbstractPollStorage):
             with open(poll_file) as f:
                 data = json.load(f)
                 if data['is_started']:
+                    self.file_path = poll_file
                     return data           

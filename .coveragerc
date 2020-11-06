@@ -1,0 +1,9 @@
+[run]
+omit = 
+	*/__init__.py
+	*/env/*
+	*/tests/*
+	chat/files.py
+	chat/messages/chat_msg_functions.py
+	storage/storage.py
+[report]
