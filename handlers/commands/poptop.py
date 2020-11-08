@@ -5,6 +5,10 @@ from songs_functionality.songs_functions import upload_song, sort_songs
 from slack import WebClient
 
 
+# If the error is occured during check_poptop_argument,
+# this value is going to be used instead.
+DEFAULT_EXCEPTION_VALUE = 1 
+
 def check_poptop_argument(poll: Poll, request_form: dict) -> int:
     """
     Check the argument of /poptop command and return the value of song.
@@ -14,12 +18,12 @@ def check_poptop_argument(poll: Poll, request_form: dict) -> int:
     try:
         song_index = int(args)
     except ValueError:
-        return 1
+        return DEFAULT_EXCEPTION_VALUE
 
     if 0 < song_index < poll.number_of_songs:
         return song_index
     else:
-        return 1 
+        return DEFAULT_EXCEPTION_VALUE
 
 @only_admin
 @poll_is_started

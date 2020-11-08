@@ -20,7 +20,7 @@ Little musical bot for slack that have following features:
 1. Create new bot-app using [SlackApi](https://api.slack.com/apps)
 2. Clone the repo
 ```bash
-git clone https://github.com/Stashchen/slack-music-bot.git slack-bot
+git clone https://github.com/Stashchen/bot-top-ranking-slack.git slack-bot
 cd slack-bot 
 ```
 3. Setup env
@@ -61,3 +61,10 @@ python bot.py
 ngrok http 3000
 ```
 **If you do not use ngrok, you need to run your own webserver with 3000 port!!!** 
+
+## Testing Bot
+If you would like to test bot functionality, you should run:
+* unittest:
+```bash
+./start_unittests.sh
+```

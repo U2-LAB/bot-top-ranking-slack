@@ -16,9 +16,6 @@ from poll import Poll
 from slack import WebClient
 
 
-# Does this functions needs to be tested?
-
-
 def handle_commands(client: WebClient, poll: Poll, request_form: dict) -> None:
     """
     Function, that will handle all the commands that is going to be sent to the bot.

@@ -7,6 +7,10 @@ from slack import WebClient
 from songs_functionality.songs_functions import sort_songs
 
 
+# If top command was invoked with bad params,
+# it will use this default value.
+DEFAULT_VALUE_ERROR_VALUE = 5 
+
 def check_top_arguments(poll: Poll, request_form: dict) -> int:
     """
     Check the argument of /poptop command and return the value of song.
@@ -16,12 +20,12 @@ def check_top_arguments(poll: Poll, request_form: dict) -> int:
     try:
         song_index = int(args)
     except ValueError:
-        return 5
+        return DEFAULT_VALUE_ERROR_VALUE
 
     if 1 < song_index < poll.number_of_songs:
         return song_index
     else:
-        return 5 
+        return DEFAULT_VALUE_ERROR_VALUE
 
 def create_final_top_msg(top_songs: list) -> str:
     """

@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock, Mock
 
 import songs_functionality.songs_functions as songs_funcs
 
