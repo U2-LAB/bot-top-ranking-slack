@@ -61,3 +61,10 @@ python bot.py
 ngrok http 3000
 ```
 **If you do not use ngrok, you need to run your own webserver with 3000 port!!!** 
+
+## Testing Bot
+If you would like to test bot functionality, you should run:
+* unittest:
+```bash
+./start_unittests.sh
+```

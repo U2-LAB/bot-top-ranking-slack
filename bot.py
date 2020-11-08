@@ -19,7 +19,7 @@ SLACK_BOT_VERIFICATION_TOKEN = os.environ.get('SLACK_BOT_VERIFICATION_TOKEN')
 
 # Get slack api client and poll object
 slack_client = WebClient(SLACK_BOT_ACCESS_TOKEN)
-music_poll = Poll(10)
+music_poll = Poll()
 
 # Enable several routes to the server
 @app.route("/")

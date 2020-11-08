@@ -1,4 +1,4 @@
-from storage.json.storage import JsonPollStorage
+from storage.json.json_storage import JsonPollStorage
 
 
 POLL_BLOCK_BLUEPRINT = [{
@@ -16,11 +16,31 @@ class Poll:
     It represents the block of the message entity in the Slack.
     """
 
-    def __init__(self, number_of_songs: int) -> None:
+    def __init__(self) -> None:
         self.storage = JsonPollStorage('storage/json/history/')
-        self.number_of_songs = number_of_songs
-        self.is_started = False
-        self.is_music_upload = False
+        self.number_of_songs = 0
+
+    @property
+    def is_started(self):
+        return self.storage.data.get('is_started')
+
+    @is_started.setter
+    def is_started(self, value):
+        if isinstance(value, bool):
+            self.storage.data['is_started'] = value
+        else:
+            raise TypeError('is_started should be bool')
+    
+    @property
+    def is_music_upload(self):
+        return self.storage.data.get('is_music_upload')
+
+    @is_music_upload.setter
+    def is_music_upload(self, value):
+        if isinstance(value, bool):
+            self.storage.data['is_music_upload'] = value
+        else:
+            raise TypeError('is_music_upload should be bool')
 
     def update_votes(self, user_id: str, selected_song_id: str) -> None:
         """
@@ -46,22 +66,9 @@ class Poll:
             new_chunk = latest_chunk_of_songs[songs_in_chunk:]
             songs_in_list[-1] = updated_chunk
             songs_in_list.append(new_chunk)
-            return self.divide_all_songs_into_chunks(songs_in_list)
+            return self.divide_all_songs_into_chunks(songs_in_list, songs_in_chunk)
         else:
             return songs_in_list
-
-    def add_songs_chunks_to_messages(self, chunks: list) -> None:
-        """
-        Update storage.data dict with messages.
-        """
-        messages = []
-        for chunk in chunks:
-            message = {
-                'songs': chunk
-            }
-            messages.append(message)
-
-        self.storage.create_storage(messages)
 
     def create_poll_blocks(self, songs_chunk: list) -> list:
         """
@@ -105,9 +112,3 @@ class Poll:
                 winner = song
 
         return winner
-
-    def save(self) -> None:
-        """
-        Save poll data to storage.
-        """
-        self.storage.save(self.is_started, self.is_music_upload)
