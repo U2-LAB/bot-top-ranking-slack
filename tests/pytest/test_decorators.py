@@ -12,3 +12,32 @@ def test_only_admin(mocker):
     # Mock() is just test function that is wrapped in decorators.
     only_admin(Mock())(None, None, None)
     assert not mocked_send_msg.called
+    
+    mocked_admin.return_value = False
+    # Mock() is just test function that is wrapped in decorators.
+    only_admin(Mock())(None, None, None)
+    assert mocked_send_msg.called
+
+def test_poll_not_started(mocker):
+    mocked_send_msg = mocker.patch('handlers.decorators.send_msg_to_user')
+    poll = Mock()
+
+    poll.is_started = False
+    poll_not_started(Mock())(None, poll, None)
+    assert not mocked_send_msg.called
+
+    poll.is_started = True
+    poll_not_started(Mock())(None, poll, None)
+    assert mocked_send_msg.called
+
+def test_poll_is_started(mocker):
+    mocked_send_msg = mocker.patch('handlers.decorators.send_msg_to_user')
+    poll = Mock()
+
+    poll.is_started = True
+    poll_is_started(Mock())(None, poll, None)
+    assert not mocked_send_msg.called
+
+    poll.is_started = False
+    poll_is_started(Mock())(None, poll, None)
+    assert mocked_send_msg.called

@@ -4,18 +4,6 @@ from poll import Poll
 from unittest.mock import Mock
 
 
-@pytest.fixture
-def poll_for_tests(mocker):
-    poll = Poll()
-    poll.storage = Mock()
-    poll.storage.data = {
-        'is_started': False,
-        'is_music_upload': False,
-        'messages': []
-    }
-    return poll
-
-
 def test_get_is_started(poll_for_tests):
 
     assert not poll_for_tests.is_started

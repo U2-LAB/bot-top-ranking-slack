@@ -1,22 +1,7 @@
 import unittest
-from unittest.mock import patch
 
 from chat.users import is_admin
-
-class CustomTestClient:
-
-    def conversations_info(self, channel: str):
-        data = {
-            'Channel1':{
-                'channel': {
-                    'creator': 'User1'
-            }},
-            'Channel2':{
-                'channel': {
-                    'creator': 'User2'
-            }}
-        }
-        return data.get(channel)
+from tests.common_data import CustomTestClient
 
 
 class TestUsers(unittest.TestCase):
