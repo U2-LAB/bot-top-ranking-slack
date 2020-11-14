@@ -6,4 +6,6 @@ omit =
 	chat/files.py
 	chat/messages/chat_msg_functions.py
 	storage/storage.py
+    bot.py
+    tools/create_test_csv.py    
 [report]

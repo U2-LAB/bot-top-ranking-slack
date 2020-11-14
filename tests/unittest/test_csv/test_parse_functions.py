@@ -4,16 +4,10 @@ from unittest.mock import patch
 
 import tools.parse_functions as csv_funcs
 
+from tests.common_data import CustomResponse 
 
 good_response_text = "Title;Artist;Link\r\nTitle1;Artist1;Link1\r\nTitle2;Artist2;Link2\r\nTitle3;Artist3;Link3\r\n"
 bad_response_text = "Notitle;NotArtist;NotLink\r\nTitle1;Artist1;Link1\r\nTitle2;Artist2;Link2\r\nTitle3;Artist3;Link3\r\n"
-
-
-class CustomResponse:
-    def __init__(self, text):
-        self.apparent_encoding = 'UTF-8'
-        self.encoding = None
-        self.text = text
 
 
 class TestParseFunctions(unittest.TestCase):
