@@ -1,5 +1,7 @@
 from storage.json.json_storage import JsonPollStorage
 
+from typing import List, Union
+
 
 POLL_BLOCK_BLUEPRINT = [{
     "type": "section",
@@ -55,7 +57,7 @@ class Poll:
                 else:
                     song['voted_users'].pop(song['voted_users'].index(user_id))
    
-    def divide_all_songs_into_chunks(self, songs_in_list: list, songs_in_chunk=30) -> list:
+    def divide_all_songs_into_chunks(self, songs_in_list: list, songs_in_chunk=30) -> List[list]:
         """
         As it is allowed to use <= 50 units in slack messages,
         So here is the function that check to seperate messages.
@@ -70,7 +72,7 @@ class Poll:
         else:
             return songs_in_list
 
-    def create_poll_blocks(self, songs_chunk: list) -> list:
+    def create_poll_blocks(self, songs_chunk: list) -> List[dict]:
         """
         Method, that creates block of songs in the current poll.
         """

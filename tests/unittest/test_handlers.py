@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, Mock
 
 from handlers.handlers import handle_commands, handle_interactivity
-from tests.common_functions import check_command_for_handle_commands_func
+from tests.common_data import check_command_for_handle_commands_func
 
 
 class TestPollStatus(unittest.TestCase):

@@ -5,6 +5,8 @@ import os
 import json
 import requests
 
+from typing import List, Union
+
 from storage.storage import AbstractPollStorage
 
 
@@ -13,7 +15,7 @@ class JsonPollStorage(AbstractPollStorage):
     Class that represent json file as storage.
     """
 
-    def _get_valid_json_file_name(self):
+    def _get_valid_json_file_name(self) -> str:
         """
         Get valid name based on the current time and date.
         """
@@ -28,7 +30,7 @@ class JsonPollStorage(AbstractPollStorage):
         }
         self.file_path = dir_path + self._get_valid_json_file_name()
 
-    def get_all_songs(self) -> list:
+    def get_all_songs(self) -> List[dict]:
         """
         Method to get list of songs.
         """
@@ -37,7 +39,7 @@ class JsonPollStorage(AbstractPollStorage):
             all_songs.extend(message.get('songs')) 
         return all_songs
     
-    def get_all_messages_id(self) -> list:
+    def get_all_messages_id(self) -> List[str]:
         """
         Method that return all the messages ids.
         """
@@ -51,7 +53,7 @@ class JsonPollStorage(AbstractPollStorage):
             if song in message.get('songs'):
                 return message
 
-    def get_songs_chunk_with_selected_song_id(self, song_id: str) -> list:
+    def get_songs_chunk_with_selected_song_id(self, song_id: str) -> List[dict]:
         """
         Get song object form song id.
         """
@@ -85,7 +87,7 @@ class JsonPollStorage(AbstractPollStorage):
 
                 f.write(json.dumps(poll_data))
 
-    def check_for_unfinished_poll(self, path='storage/json/history/') -> list:
+    def check_for_unfinished_poll(self, path='storage/json/history/') -> Union[list, None]:
         """
         Function that check if the user has not finished polls and if True, return the first unfinished.
         """

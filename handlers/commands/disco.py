@@ -1,6 +1,7 @@
 from chat.messages.chat_msg_functions import send_msg_to_user, send_msg_to_chat
 from chat.files import upload_file_to_user
 
+from typing import Union
 from tools.parse_functions import parse_csv_with_songs
 
 from handlers.decorators import only_admin, poll_not_started
@@ -9,7 +10,7 @@ from poll import Poll
 from slack import WebClient
 
 
-def parse_disco_args(command_arguments: str) -> str:
+def parse_disco_args(command_arguments: str) -> Union[str, None]:
     """
     Check the argument of /disco command for csv file with songs and return the data.
     """

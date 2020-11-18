@@ -1,6 +1,8 @@
 from chat.messages.chat_msg_functions import send_msg_to_user
 from chat.files import upload_file
 
+from typing import List
+
 from os import system
 from storage.storage import AbstractPollStorage
 from slack import WebClient
@@ -26,7 +28,7 @@ def make_valid_song_name(song: dict) -> str:
     song_title = song_title.replace(' ', '-')
     return song_title
 
-def sort_songs(all_songs: list) -> list:
+def sort_songs(all_songs: list) -> List[dict]:
     """
     Sort all_songs in desc order, using bubble sort.
     """
@@ -34,14 +36,12 @@ def sort_songs(all_songs: list) -> list:
     # not to change the real order of the songs.
     all_songs = all_songs[:] 
 
-    for i in range(len(all_songs)-1):
-        for j in range(len(all_songs)-i-1):
-            if len(all_songs[j]['voted_users']) < len(all_songs[j+1]['voted_users']):
-                all_songs[j], all_songs[j+1] = all_songs[j+1], all_songs[j]
+    all_songs.sort(key=lambda song: len(song.get('voted_users')), reverse=True)
 
     return all_songs
 
-def upload_song(client: WebClient, request_form: dict, song: dict):
+
+def upload_song(client: WebClient, request_form: dict, song: dict) -> None:
     song_title = make_valid_song_name(song)
     try:
         download_song(song_title, song['link'], './media/songs')

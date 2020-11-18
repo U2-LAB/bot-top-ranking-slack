@@ -1,7 +1,9 @@
 import requests
 
+from typing import Union, List
 
-def parse_csv_with_songs(file_url: str, next_line='\r\n', delimiter=';') -> list:
+
+def parse_csv_with_songs(file_url: str, next_line='\r\n', delimiter=';') -> Union[list, List[dict]]:
     """
     Function, that will download csv file with songs.
     """

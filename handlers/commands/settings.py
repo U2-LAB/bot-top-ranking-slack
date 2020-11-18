@@ -1,13 +1,15 @@
 from chat.messages.chat_msg_functions import send_msg_to_user
 from chat.users import is_admin
 
+from typing import Tuple
+
 from handlers.decorators import only_admin
 
 from poll import Poll
 from slack import WebClient
 
 
-def get_settings_option_and_option_argument(command_arguments: str) -> list:
+def get_settings_option_and_option_argument(command_arguments: str) -> Tuple[str, str]:
     """
     Function, that parse command arguments and return:
         option - first argument
