@@ -45,7 +45,7 @@ class JsonPollStorage(AbstractPollStorage):
         """
         return [message.get('id') for message in self.data.get('messages')]
 
-    def get_message_from_song(self, song: dict) -> dict:
+    def get_message_from_song(self, song: dict) -> Union[dict, None]:
         """
         Get message with particular song.
         """
