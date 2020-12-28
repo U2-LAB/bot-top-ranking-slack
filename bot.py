@@ -1,21 +1,22 @@
 from flask import Flask, Response, request
 import json
 import os
-from threading import Thread
 from poll import Poll
 from slack import WebClient
 from slackeventsapi import SlackEventAdapter
+from dotenv import load_dotenv
 
 from handlers.handlers import handle_commands, handle_interactivity
+load_dotenv()
 
 
 # Start Flask app that will be produce all the requests
 app = Flask(__name__)
 
 # Get venv variables
-SLACK_BOT_SIGNIN_TOKEN = os.environ.get('SLACK_BOT_SIGNIN_TOKEN')
-SLACK_BOT_ACCESS_TOKEN = os.environ.get('SLACK_BOT_ACCESS_TOKEN')
-SLACK_BOT_VERIFICATION_TOKEN = os.environ.get('SLACK_BOT_VERIFICATION_TOKEN')
+SLACK_BOT_SIGNIN_TOKEN = os.getenv('SLACK_BOT_SIGNIN_TOKEN')
+SLACK_BOT_ACCESS_TOKEN = os.getenv('SLACK_BOT_ACCESS_TOKEN')
+SLACK_BOT_VERIFICATION_TOKEN = os.getenv('SLACK_BOT_VERIFICATION_TOKEN')
 
 # Get slack api client and poll object
 slack_client = WebClient(SLACK_BOT_ACCESS_TOKEN)
@@ -59,4 +60,4 @@ slack_events_adapter = SlackEventAdapter(
 ) 
 
 if __name__ == "__main__":
-  app.run(host='0.0.0.0', port=4000)
+    app.run(host='0.0.0.0', port=3000, debug=False)
