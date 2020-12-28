@@ -29,17 +29,15 @@ python -m venv env
 ```
 4. Create env variables
 ```bash
-# env/bin/activate
-deactivate(){
-	...
-	unset SLACK_BOT_ACCESS_TOKEN
-    unset SLACK_BOT_SIGNIN_TOKEN
-    unset SLACK_BOT_VERIFICATION_TOKEN
-}
-
-export SLACK_BOT_ACCESS_TOKEN='YOUR_CODE' # https://api.slack.com/apps/YOUR_BOT_APP_ID/oauth?
-export SLACK_BOT_SIGNIN_TOKEN='YOUR_CODE' # https://api.slack.com/apps/YOUR_BOT_APP_ID
-export SLACK_BOT_VERIFICATION_TOKEN='YOUR_CODE' # https://api.slack.com/apps/YOUR_BOT_APP_ID
+# .env
+SLACK_BOT_ACCESS_TOKEN='YOUR_CODE' # https://api.slack.com/apps/YOUR_BOT_APP_ID/oauth?
+SLACK_BOT_SIGNIN_TOKEN='YOUR_CODE' # https://api.slack.com/apps/YOUR_BOT_APP_ID
+SLACK_BOT_VERIFICATION_TOKEN='YOUR_CODE' # https://api.slack.com/apps/YOUR_BOT_APP_ID
+USER_DB = 'USERNAME'
+PASSWORD_DB = 'PASSWORD'
+HOST_DB = 'LOCALHOST'
+PORT_DB = PORT
+NAME_DB = 'DB-NAME'
 ```
 5. Setup your web-server(For testing - ngrok)
 ```bash
@@ -62,6 +60,26 @@ ngrok http 3000
 ```
 **If you do not use ngrok, you need to run your own webserver with 3000 port!!!** 
 
+## Docker run
+
+1. Build docker image from Dockerfile
+```bash
+docker build -t slack-bot .
+```
+2. Setup your web-server
+```bash
+sudo apt update
+sudo apt install snapd
+sudo snap install ngrok 
+```
+3. Run the code
+```bash
+# First terminal (If you use ngrok)
+ngrok http 3000
+
+# Second terminal
+docker run -d --rm --name slack --net host slack-bot:latest 
+```
 ## Testing Bot
 If you would like to test bot functionality, you should run:
 * unittest:
