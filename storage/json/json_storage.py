@@ -5,10 +5,11 @@ import os
 import json
 import requests
 
+from playhouse.shortcuts import model_to_dict
 from typing import List, Union
 
 from storage.storage import AbstractPollStorage
-
+from storage.songs import Song
 
 class JsonPollStorage(AbstractPollStorage):
     """
@@ -34,36 +35,46 @@ class JsonPollStorage(AbstractPollStorage):
         """
         Method to get list of songs.
         """
-        all_songs = []
-        for message in self.data.get('messages'):
-            all_songs.extend(message.get('songs')) 
-        return all_songs
+        songs = []
+        for song in Song.select().order_by(Song.author).execute():
+            songs.append(model_to_dict(song))
+        return songs
     
     def get_all_messages_id(self) -> List[str]:
         """
         Method that return all the messages ids.
         """
-        return [message.get('id') for message in self.data.get('messages')]
+        return [message.message_id for message in Song.select(Song.message_id).group_by(Song.message_id).execute()]
 
     def get_message_from_song(self, song: dict) -> Union[dict, None]:
         """
         Get message with particular song.
         """
-        for message in self.data.get('messages'):
-            if song in message.get('songs'):
-                return message
+        for message in self.get_all_messages_id():
+            if Song.select().where(Song.id_music << [music.id_music for music in Song.select().where(Song.message_id == message).execute()]).count():
+                return {
+                    "id" : message,
+                    "songs" : [model_to_dict(song) for song in Song.select().where(Song.message_id == message).order_by(Song.author).execute()]
+                }
 
     def get_songs_chunk_with_selected_song_id(self, song_id: str) -> List[dict]:
         """
         Get song object form song id.
         """
-        prev_msg = self.data['messages'][0]
-        for next_msg in self.data['messages'][1:]:
-            if prev_msg['songs'][0]['value'] <= int(song_id) < next_msg['songs'][0]['value']:
-                return prev_msg.get('songs')
+        messages = self.get_all_messages_id()
+        prev_msg = messages[0]
+        for next_msg in messages[1:]:
+            if Song.get(Song.message_id == prev_msg).id_music < int(song_id) <= Song.get(Song.message_id == next_msg).id_music:
+                songs = []
+                for song in Song.select().where(Song.message_id == prev_msg).order_by(Song.author).execute():
+                    songs.append(model_to_dict(song))
+                return songs
             else:
                 prev_msg = next_msg
-        return self.data['messages'][-1]['songs']
+        songs = []
+        for song in Song.select().where(Song.message_id == messages[-1]).order_by(Song.author).execute():
+            songs.append(model_to_dict(song))
+        return songs
 
     def save(self) -> None:
         with open(self.file_path, 'w') as f:
@@ -98,4 +109,4 @@ class JsonPollStorage(AbstractPollStorage):
                 data = json.load(f)
                 if data['is_started']:
                     self.file_path = poll_file
-                    return data           
+                    return data

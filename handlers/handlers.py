@@ -50,12 +50,11 @@ def handle_interactivity(client: WebClient, request, poll: Poll) -> None:
         # If button was tracked
         user_id = payload['user']['id']
         selected_song_id = payload['actions'][0]['value']
-        songs_chunk_with_selected_song = poll.storage.get_songs_chunk_with_selected_song_id(selected_song_id)
-        
         poll.update_votes(user_id, selected_song_id)
+        songs_chunk_with_selected_song = poll.storage.get_songs_chunk_with_selected_song_id(selected_song_id)
 
         channel_id = payload['container']['channel_id']
         message_id = payload['container']['message_ts']
-
+        
         edit_msg_in_chat(client, channel_id, message_id, '', poll.create_poll_blocks(songs_chunk_with_selected_song))
         poll.storage.save()

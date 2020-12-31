@@ -1,6 +1,9 @@
 from storage.json.json_storage import JsonPollStorage
-
+from storage.songs import Song
 from typing import List, Union
+from playhouse.shortcuts import model_to_dict
+from storage.songs import Song
+from peewee import fn
 
 
 POLL_BLOCK_BLUEPRINT = [{
@@ -51,11 +54,25 @@ class Poll:
         songs = self.storage.get_all_songs()
 
         for song in songs:
-            if song['value'] == int(selected_song_id):
+            if song['id_music'] == int(selected_song_id):
+                song_item = Song.get_by_id(int(selected_song_id))
                 if user_id not in song['voted_users']:
                     song['voted_users'].append(user_id)
+                    song_item.update(
+                        mark=song_item.mark + 1
+                        ).where(Song.id_music == song_item.id_music).execute()
+                    song_item.update(
+                        voted_users=fn.array_append(Song.voted_users, user_id)
+                        ).where(Song.id_music == song_item.id_music).execute()
                 else:
                     song['voted_users'].pop(song['voted_users'].index(user_id))
+                    song_item.update(
+                        mark=song_item.mark - 1
+                        ).where(Song.id_music == song_item.id_music).execute()
+                    song_item.update(
+                        voted_users=fn.array_remove(Song.voted_users, user_id)
+                        ).where(Song.id_music == song_item.id_music).execute()
+
    
     def divide_all_songs_into_chunks(self, songs_in_list: list, songs_in_chunk=30) -> List[list]:
         """
@@ -78,14 +95,14 @@ class Poll:
         """
         poll_block = POLL_BLOCK_BLUEPRINT[:]
         
-        start_index = songs_chunk[0].get('value')
+        start_index = songs_chunk[0].get("id_music")
 
         for index, song in enumerate(songs_chunk, start=start_index):
             new_section = {
                 "type": "section",
                 "text": {
                     "type": "plain_text",
-                    "text": f"{index}) {song['artist']} - {song['title']} ----- {len(song['voted_users'])} votes"
+                    "text": f"{index}) {song.get('author')} - {song.get('title')} ----- {len(song.get('voted_users'))} votes"
                 },
                 'accessory': {
                     'type': 'button',
@@ -105,12 +122,9 @@ class Poll:
         Method, that parse songs in the storage and find song with max votes.
         If two songs have same number of votes, it will return the first one. 
         """
-        songs = self.storage.get_all_songs()
+        songs = Song.select().order_by(Song.mark.desc())
 
-        winner = songs[0]
+        winner = model_to_dict(songs[0])
         
-        for song in songs[1:]:
-            if len(song['voted_users']) > len(winner['voted_users']):
-                winner = song
 
         return winner

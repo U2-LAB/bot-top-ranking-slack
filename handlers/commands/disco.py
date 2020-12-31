@@ -1,13 +1,14 @@
 from chat.messages.chat_msg_functions import send_msg_to_user, send_msg_to_chat
-from chat.files import upload_file_to_user
 
 from typing import Union
-from tools.parse_functions import parse_csv_with_songs
+from tools.create_test_csv import get_all_songs as download_songs
 
 from handlers.decorators import only_admin, poll_not_started
 
 from poll import Poll
 from slack import WebClient
+
+from storage.songs import Song
 
 
 def parse_disco_args(command_arguments: str) -> Union[str, None]:
@@ -20,6 +21,15 @@ def parse_disco_args(command_arguments: str) -> Union[str, None]:
         if arg.endswith('.csv'):
             return arg
 
+def create_songs():
+    """
+    Create SQL row in database that save data about our songs
+    """
+    if Song.select().count() == 0:
+        for idx, song in enumerate(download_songs()):
+            Song.create(title=song[0], link=song[2], author=song[1], voted_users=[])
+            Song.update(pos=idx + 1).where(Song.id_music == idx + 1).execute()
+
 def prepare_songs_for_poll(client: WebClient, poll: Poll, request_form: dict, songs: list) -> None:
     """
     Function that create and save poll in storage.
@@ -30,7 +40,6 @@ def prepare_songs_for_poll(client: WebClient, poll: Poll, request_form: dict, so
 
     # As slack message allows having only < 50 songs in the message, so next code
     # seperate all the songs on 30 songs chunks and put each chunk in its message. 
-    messages = []
     
     if len(songs) > 30:
         chunks = poll.divide_all_songs_into_chunks([songs])
@@ -42,13 +51,10 @@ def prepare_songs_for_poll(client: WebClient, poll: Poll, request_form: dict, so
     for songs_chunk in chunks:
         message_blocks = poll.create_poll_blocks(songs_chunk)
         response = send_msg_to_chat(client, request_form, '', blocks=message_blocks)
-        messages.append({
-            'id': response.get('ts'),
-            'songs': songs_chunk
-        })
+        Song.update(message_id=response.get('ts')).where(Song.id_music << [song["id_music"] for song in songs_chunk]).execute()
+    
+    poll.storage.save()
 
-    poll.storage.data['messages'] = messages
-    poll.storage.save() 
 
 @only_admin
 @poll_not_started
@@ -61,15 +67,11 @@ def start_disco(client: WebClient, poll: Poll, request_form: dict) -> None:
         send_msg_to_user(client, request_form, 'You have unfinished poll. Type /resume to resume your poll or /drop to drop this poll.')
         return 
 
-    # Preparing csv file with songs
-    csv_file_url = parse_disco_args(request_form.get('text'))
-    if not csv_file_url:
-        send_msg_to_user(client, request_form, 'Please enter valid file path')
+    create_songs()
+
+    songs = poll.storage.get_all_songs() # Get songs from database
+
+    if songs:
+        prepare_songs_for_poll(client, poll, request_form, songs)
     else:
-        songs = parse_csv_with_songs(csv_file_url)
-        if songs:
-            prepare_songs_for_poll(client, poll, request_form, songs)
-        else:
-            send_msg_to_user(client, request_form, "It seems like your CSV file structure is not valid. Use my template instead.")
-            upload_file_to_user(client, request_form, 'media/csv/template.csv') # Send user a csv template.
- 
+        send_msg_to_user(client, request_form, "It seems like you dont't have song in your database")

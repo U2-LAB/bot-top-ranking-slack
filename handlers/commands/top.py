@@ -34,7 +34,7 @@ def create_final_top_msg(top_songs: list) -> str:
     msg = f"TOP {len(top_songs)} songs\n"
 
     for song in top_songs:
-        msg += f"{song['artist']} - {song['title']} ---- {len(song['voted_users'])}\n"
+        msg += f"{song['author']} - {song['title']} ---- {len(song['voted_users'])}\n"
 
     return msg
 

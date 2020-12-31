@@ -3,7 +3,7 @@ from chat.files import upload_file
 
 from typing import List
 
-from os import system
+from os import system, path, makedirs
 from storage.storage import AbstractPollStorage
 from slack import WebClient
 
@@ -24,8 +24,9 @@ def make_valid_song_name(song: dict) -> str:
     """
     Parse the title of the song and make it valid to store.
     """ 
-    song_title = '-'.join([song['artist'], song['title']])
-    song_title = song_title.replace(' ', '-')
+    song_title = '-'.join([song['author'], song['title']])
+    for char in [' ', '(', ')', "'", '"','/','\\']:
+        song_title = song_title.replace(char, '-')
     return song_title
 
 def sort_songs(all_songs: list) -> List[dict]:
@@ -43,10 +44,12 @@ def sort_songs(all_songs: list) -> List[dict]:
 
 def upload_song(client: WebClient, request_form: dict, song: dict) -> None:
     song_title = make_valid_song_name(song)
+    print(song_title)
     try:
+        if not path.exists('./media/songs'):
+            makedirs('./media/songs')
         download_song(song_title, song['link'], './media/songs')
         upload_file(client, request_form, './media/songs/{}.mp3'.format(song_title))
         delete_songs('./media/songs')
     except FileNotFoundError:
-        send_msg_to_user(client, request_form, f"The error occured during downloading song.\nBut the song is {song['artist']} - {song['title']}")
-        
+        send_msg_to_user(client, request_form, f"The error occured during downloading song.\nBut the song is {song['author']} - {song['title']}")

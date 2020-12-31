@@ -2,6 +2,7 @@ import csv
 import requests
 from bs4 import BeautifulSoup
 
+SONG_COUNT = 25
 
 def get_all_songs() -> list:
     """
@@ -14,7 +15,7 @@ def get_all_songs() -> list:
 
     all_top_songs = soup.find_all(class_='musicset-track')
 
-    for song_bs in all_top_songs:
+    for song_bs in all_top_songs[:SONG_COUNT]:
         # If track is banned on the site, it will be shown in the class of the tag
         if 'track-is-banned' in song_bs.get('class'):  
             continue
@@ -26,7 +27,7 @@ def get_all_songs() -> list:
 
         songs.append(song)
 
-    return songs
+    return sorted(songs, key=lambda song: song[1])
 
 def form_csv(songs: list, delimiter=';') -> None:
     """
@@ -42,4 +43,3 @@ def form_csv(songs: list, delimiter=';') -> None:
 
 if __name__ == "__main__":
     songs = get_all_songs()
-    form_csv(songs)
